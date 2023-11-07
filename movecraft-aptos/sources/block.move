@@ -226,12 +226,14 @@ module movecraft::block {
 
         // Validate block stackable
         let block2_address = get_block_address(&state.blocks, owner_address, block_2_id);
-        let (_block2_name, _block2_type, block2_count, block2_stackable) = get_block_properties(block2_address);
+        let (_block2_name, block2_type, block2_count, block2_stackable) = get_block_properties(block2_address);
         assert!(block2_stackable, ENOT_STACKABLE);
 
         let block1_address = get_block_address(&state.blocks, owner_address, block_1_id);
-        let (_block1_name, _block1_type, block1_count, block1_stackable) = get_block_properties(block1_address);
+        let (_block1_name, block1_type, block1_count, block1_stackable) = get_block_properties(block1_address);
         assert!(block1_stackable, ENOT_STACKABLE);
+
+        assert!(block1_type == block2_type, ENOT_STACKABLE);
 
         // Update block count
         let block = borrow_global_mut<Block>(block1_address);
@@ -318,7 +320,6 @@ module movecraft::block {
         mint_by_type(creator, PLANK_BLOCK_TYPE);
     }
 
-/*
     // Test burn block
     #[test(aptos = @0x1, account = @movecraft, creator = @0x123)]
     fun test_burn_block(aptos: &signer, account: &signer, creator: &signer) acquires State, Block {
@@ -362,10 +363,25 @@ module movecraft::block {
 
         mint_by_type(creator, LOG_BLOCK_TYPE);
         mint_by_type(creator, LOG_BLOCK_TYPE);
+        mint_by_type(creator, LOG_BLOCK_TYPE);
         stack(creator, 1, 2);
+        stack(creator, 1, 3);
 
         let (name, type, count, stackable) = get_block(1);
-        assert!(count == 2, 101);
+        assert!(count == 3, 101);
     }
-*/
+
+    // Test burn block failed with other user
+    #[test(aptos = @0x1, account = @movecraft, creator = @0x123)]
+    #[expected_failure(abort_code = ENOT_STACKABLE, location = Self)]
+    fun test_stack_block_failed_other_type(aptos: &signer, account: &signer, creator: &signer) acquires State, Block {
+        setup_test(aptos, account, creator);
+
+        mint_by_type(creator, LOG_BLOCK_TYPE);
+        mint_by_type(creator, LOG_BLOCK_TYPE);
+        mint_by_type(creator, PLANK_BLOCK_TYPE);
+        stack(creator, 1, 2);
+        stack(creator, 1, 3);
+    }
+    
 }
