@@ -34,6 +34,7 @@ module movecraft::block {
     const LOG_BLOCK_TYPE: u64 = 11;
     const PLANK_BLOCK_TYPE: u64 = 12;
 
+    const BLOCK_ID_KEY: vector<u8> = b"id";
     const BLOCK_TYPE_KEY: vector<u8> = b"type";
     const BLOCK_COUNT_KEY: vector<u8> = b"count";
 
@@ -143,6 +144,11 @@ module movecraft::block {
         property_map::init(&constructor_ref, properties);
         property_map::add_typed<u64>(
             &property_mutator_ref,
+            string::utf8(BLOCK_ID_KEY),
+            block_id,
+        );
+        property_map::add_typed<u64>(
+            &property_mutator_ref,
             string::utf8(BLOCK_TYPE_KEY),
             type,
         );
@@ -218,7 +224,7 @@ module movecraft::block {
     }
 
     // Stack by owned blocks
-    public entry fun stack(owner: &signer, block_1_id: u64, block_2_id: u64) acquires State, Block {
+    public entry fun stack_block(owner: &signer, block_1_id: u64, block_2_id: u64) acquires State, Block {
         
         let resource_address = get_resource_address();
         let state = borrow_global_mut<State>(resource_address);
@@ -364,8 +370,8 @@ module movecraft::block {
         mint_by_type(creator, LOG_BLOCK_TYPE);
         mint_by_type(creator, LOG_BLOCK_TYPE);
         mint_by_type(creator, LOG_BLOCK_TYPE);
-        stack(creator, 1, 2);
-        stack(creator, 1, 3);
+        stack_block(creator, 1, 2);
+        stack_block(creator, 1, 3);
 
         let (name, type, count, stackable) = get_block(1);
         assert!(count == 3, 101);
@@ -380,8 +386,8 @@ module movecraft::block {
         mint_by_type(creator, LOG_BLOCK_TYPE);
         mint_by_type(creator, LOG_BLOCK_TYPE);
         mint_by_type(creator, PLANK_BLOCK_TYPE);
-        stack(creator, 1, 2);
-        stack(creator, 1, 3);
+        stack_block(creator, 1, 2);
+        stack_block(creator, 1, 3);
     }
     
 }
