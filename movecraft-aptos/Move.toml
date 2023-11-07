@@ -13,4 +13,4 @@ rev = 'main'
 subdir = 'aptos-move/framework/aptos-token-objects'
 
 [addresses]
-movecraft = "_"
+movecraft = "0x124"
